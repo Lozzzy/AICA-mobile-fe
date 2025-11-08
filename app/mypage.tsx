@@ -23,6 +23,11 @@ interface UserInfo {
     email: string;
     nickname: string;
 }
+
+interface WordData {
+    wordId: number;
+}
+
 const InfoRow = ({ label, value }: { label: string; value: string | number }) => (
     <View style={styles.infoRow}>
         <Text style={styles.infoLabel}>{label}</Text>
@@ -45,8 +50,17 @@ export default function MyPageScreen() {
                 api.get('/api/member'),
                 api.get('/api/word'),
             ]);
+            
             setUserInfo(memberResponse.data);
-            setWordCount(wordResponse.data.data.length);
+
+            const allWords: WordData[] = wordResponse.data.data;
+
+            const uniqueWords = allWords.filter((word, index, self) =>
+                index === self.findIndex(w => w.wordId === word.wordId)
+            );
+
+            setWordCount(uniqueWords.length);
+
         } catch (error) {
             console.error("데이터를 불러오는데 실패했습니다.", error);
             Alert.alert("오류", "정보를 가져오는 중 문제가 발생했습니다.");
@@ -190,7 +204,7 @@ const styles = StyleSheet.create({
     },
     logoutText: {
         fontSize: 16,
-        color: '#444444', 
+        color: '#444444',
         textAlign: 'center',
     },
 });

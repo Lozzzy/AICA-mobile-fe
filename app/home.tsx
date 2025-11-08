@@ -62,13 +62,20 @@ export default function HomeScreen() {
         setIsLoading(true);
         try {
             const response = await api.get('/api/word');
-            const processedData = response.data.data.map((word: WordData) => ({
+            const allWords: WordData[] = response.data.data;
+
+            const uniqueWords = allWords.filter((word, index, self) =>
+                index === self.findIndex(w => w.wordId === word.wordId)
+            );
+
+            const processedData = uniqueWords.map((word: WordData) => ({
                 ...word,
                 formattedMeanings: word.meanings
                     .map((m, index) => `${index + 1}. ${m.meaning}`)
                     .join(' '),
                 isMeaningVisible: false,
             }));
+            
             setWords(processedData);
         } catch (error) {
             console.error("단어 목록을 불러오는데 실패했습니다.", error);
